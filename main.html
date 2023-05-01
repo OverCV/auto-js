@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Automats - Formal languages</title>
+    <script src="https://unpkg.com/gojs/release/go-debug.js"></script>
+    <!-- JavaScript -->
+    <script defer type="module" src="src/controllers/main.js"></script>
+
+    <!-- Use of BulmaCSS -->
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://bulma.io/vendor/fontawesome-free-5.15.2-web/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div class="box text-2xl m-5 has-text-centered">
+        <div class="columns is-vcentered">
+            <div class="column is-12">
+                <div id="myDiagramDiv" style="width:100%; height:445px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box text-2xl m-3 has-text-centered">
+        <div class="columns">
+
+            <div class="column is-2 is-flex is-align-items-center has-text-centered is-vcentered">
+                <div class="file">
+                    <label class="file-label">
+                        <input class="file-input" type="file" id="fileInput" name="resume" multiple>
+                        <span class="file-cta">
+                            <span class="file-icon">
+                                <i class="fas fa-upload"></i>
+                            </span>
+                            <span class="file-label">
+                                Load Json files
+                            </span>
+                        </span>
+                    </label>
+                </div>
+                <script>
+                    const fileInput = document.querySelector('#fileInput');
+                    let t = ''
+                    fileInput.onchange = () => {
+                        if (fileInput.files.length > 0) {
+                            const fileName = document.querySelector('.file-label');
+                            for (let i = 0; i < fileInput.files.length; i++) {
+                                t += `{${fileInput.files[i].name}} `;
+                            }
+                            fileName.textContent = `${t}`;
+                        }
+                    }
+                </script>
+            </div>
+
+            <div class="column is-10">
+                <div class="columns is-justify-content-center">
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='unionBtn' class="button is-info is-outlined">Union</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='intersectionBtn' class="button is-info is-outlined">Intersection</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='inverseBtn' class="button is-info is-outlined">Inverse</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='complementBtn' class="button is-info is-outlined">Complement</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='clearBtn' class="button is-danger is-outlined">Clear all</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='reLink' class="button is-warning is-outlined">Re link</button>
+                    </div>
+                </div>
+
+                <div class="columns is-justify-content-center">
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <div class="select is-success">
+                            <select id="automataSel">
+                                <option disabled value="">Load a Json first</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id='nextBtn' disabled class="button is-primary is-outlined">Next state</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id="prevBtn" disabled class="button is-primary is-outlined">Previous state</button>
+                    </div>
+                    <div class="column is-2  is-align-items-center has-text-centered">
+                        <button id="resetBtn" disabled class="button is-primary is-outlined">Reset state</button>
+                    </div>
+                    <div class="column is-4 is-flex is-align-items-center has-text-centered">
+                        <input id="inputStr" disabled class="input is-primary" type="text" placeholder="Input string">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
