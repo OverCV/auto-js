@@ -1,10 +1,9 @@
 export default class State {
     constructor(data) {
         this.data = data
-        this.isStart = false
-        this.isEnd = false
-        this.adjacent = []
-        // this.alphabet = ["A","B","C"]
+        this.isInitial = false
+        this.isFinal = false
+        this.adjacent = { [key]: string }
     }
 
     setData(data) {
@@ -20,22 +19,26 @@ export default class State {
     setAdjacent(adjacent) {
         this.adjacent = adjacent
     }
-    setIsStart(start) {
-        this.isStart = start
+    addAdjacent(state) {
+        this.adjacent.push(state)
     }
-    getIsStart() {
-        return this.isStart
+
+    setIsInitial(isInitial) {
+        this.isInitial = isInitial
     }
-    setIsEnd(end) {
-        this.isEnd = end
+    getIsInitial() {
+        return this.isInitial
     }
-    getIsEnd() {
-        return this.isEnd
+    setIsFinal(isFinal) {
+        this.isFinal = isFinal
+    }
+    getIsFinal() {
+        return this.isFinal
     }
 
     toString() {
         let brackets = this.adjacent.length ? `[ ${this.adjacent} ]` : '[ ]'
         let data = this.data + ' | ' + brackets
-        return this.isEnd ? `((${data}))` : `(${data})`
+        return this.isFinal ? `((${data}))` : `(${data})`
     }
 }

@@ -70,9 +70,9 @@ export default class UInterface {
     createNodes(states) {
         states.forEach(state => {
             let colors = ['#48BBF2', '#1D8FE1']
-            if (state.isStart) colors = ['#00D1B2', '#2DD4BF']
-            if (state.isEnd) colors = ['#FF5E5B', '#FFC145']
-            if (state.isStart && state.isEnd) colors = ['#2DD4BF', '#FF5E5B']
+            if (state.isStart) { colors = ['#00D1B2', '#2DD4BF'] }
+            if (state.isEnd) { colors = ['#FF5E5B', '#FFC145'] }
+            if (state.isStart && state.isEnd) { colors = ['#2DD4BF', '#FF5E5B'] }
 
             let forma = state.data == this.actualState.data ? 'Diamond' : 'Circle'
 

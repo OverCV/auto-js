@@ -7,9 +7,8 @@ export default class Automata {
         this.name = ''
         this.states = []
         this.transitions = []
-        this.alphabet = ''
-        // this.transitionFunction = transition
-        // this.Function = algorithm
+        this.regEx = ''
+        this.language = []
     }
 
     setName(name) {
@@ -47,7 +46,7 @@ export default class Automata {
     }
 
     getAlphabet() {
-        return this.alphabet
+        return this.regEx
     }
 
     existObj(list, obj) {
@@ -58,9 +57,11 @@ export default class Automata {
         return this.states.some(state => state.data.includes(data));
     }
 
-    newState(data, final) {
+    newState(data, isFinal) {
         let newState = new State(data)
-        if (final) newState.isEnd = true
+        if (isFinal) {
+            newState.isFinal = true
+        }
         if (this.existObj(this.states, newState)) {
             console.log('State already exists.')
             return
@@ -70,29 +71,32 @@ export default class Automata {
         console.log('New state added.')
     }
 
-    newTransition(start, end, data) {
-        let newTransition = new Transition(start, end, data)
+    newTransition(starts, ends, data) {
+        let newTransition = new Transition(starts, ends, data)
 
         if (this.existObj(this.transitions, newTransition)) {
-            console.log('Transition already exists.')
+            // console.log('Transition already exists.')
             return
         }
 
-        if (this.existState(start) && this.existState(end)) {
-            if (this.alphabet.test(data)) {
-                let state = this.getState(start)
-                state.getAdjacent().push(end)
-                this.transitions.push(newTransition)
+        if (data.contains('_')) { data = ['_'] }
 
-                console.log('New transition added.')
-                return
-            }
+        if (this.existState(starts) && this.existState(ends)) {
+            // if (this.alphabet.test(data)) {
+            // }
+            let starterState = this.getState(starts)
+            starterState.addAdjacent(ends)
+            // getAdjacent().push(ends)
+            this.transitions.push(newTransition)
+
+            console.log('New transition added.')
+            return
         }
         console.log('No transition added.')
     }
 
     setAlphabet(symbols) {
-        this.alphabet = new RegExp(`^[${symbols}]+$`)
+        this.regEx = new RegExp(`^[${symbols}]+$`)
     }
 
     seeStates(str = '') {
@@ -122,6 +126,6 @@ export default class Automata {
     toString() {
         return `States: ${this.seeStates()}
                 Transitions: ${this.seeTransitions()}
-                Alphabet: ${this.alphabet}`
+                Alphabet: ${this.regEx}`
     }
 }

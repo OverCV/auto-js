@@ -7,4 +7,4 @@ En el desarrollo de esta segunda entrega lo que se requiere es un autómata capa
 > WIP
 > $\cdots$
 >
-> 
+>

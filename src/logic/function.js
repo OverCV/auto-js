@@ -1,3 +1,8 @@
+import State from "../models/state.js"
+import Transition from "../models/transition.js"
+import Automata from "../models/automata.js"
+
+
 export default class Function {
     constructor(automata) {
         this.automata = automata
@@ -11,7 +16,7 @@ export default class Function {
     }
 
     getInitialState() {
-        let states = this.automata.states
+        let states = this.automata.getStates()
         for (let i = 0; i < states.length; i++) {
             if (states[i].isStart) {
                 return states[i]
@@ -23,7 +28,7 @@ export default class Function {
         this.actualState = this.automata.getStates()[0]
         let acceptable = false
         for (let i = 0; i < string.length; i++) {
-            if (this.actualState.isEnd())
+            if (this.actualState.isFinal())
                 acceptable = this.getNextState()
         }
     }

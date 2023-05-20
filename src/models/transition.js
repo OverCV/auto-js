@@ -1,8 +1,10 @@
+import State from "./state.js"
+
 export default class Transition {
     constructor(start, end, chars) {
         this.start = start
         this.end = end
-        this.chars = chars
+        this.chars = Array[chars]
     }
 
     setStart(start) {
@@ -19,8 +21,8 @@ export default class Transition {
         return this.end
     }
 
-    newChars(data) {
-        this.chars.push(data)
+    addChar(char) {
+        this.chars.push(char)
     }
     setChars(data) {
         this.chars = data
