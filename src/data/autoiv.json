@@ -1,17 +1,26 @@
 {
-  "name": "Automata 02",
-  "alphabet": "\\d*",
+  "name": "Automata 03",
+  "alphabet": "10",
   "states": [
-    {"data": "A", "isInitial": true, "isFinal": false, "adjacent":{"0": ["C"], "5": ["C"], "1": ["D"]}},
-    {"data": "B", "isInitial": false, "isFinal": false, "adjacent":{"0": ["A"], "2": ["A"], "4": ["A"]}},
-    {"data": "C", "isInitial": false, "isFinal": false, "adjacent":{"4": ["B"]}},
-    {"data": "D", "isInitial": false,"isFinal": true, "adjacent":{"3": ["B"]}}
+    {"data": "S1", "isInitial": true, "isFinal": false, "adjacent":["S2", "S3"]},
+    {"data": "S2", "isInitial": false, "isFinal": false, "adjacent":["S4", "S6"]},
+    {"data": "S3", "isInitial": false, "isFinal": false, "adjacent":["S5", "S6"]},
+    {"data": "S4", "isInitial": false, "isFinal": true, "adjacent":["S5", "S6"]},
+    {"data": "S5", "isInitial": false, "isFinal": true, "adjacent":["S4", "S6"]},
+    {"data": "S6", "isInitial": false, "isFinal": false, "adjacent":[]}
   ],
   "transitions": [
-    {"start": "B", "end": "A", "chars": ["0", "2", "4"]},
-    {"start": "A", "end": "C", "chars": ["0", "5"]},
-    {"start": "A", "end": "D", "chars": ["1"]},
-    {"start": "C", "end": "B", "chars": ["4"]},
-    {"start": "D", "end": "B", "chars": ["3"]}
+    {"start": "S1", "end": "S2", "chars": ["0"]},
+    {"start": "S1", "end": "S3", "chars": ["1"]},
+    {"start": "S2", "end": "S4", "chars": ["1"]},
+    {"start": "S2", "end": "S6", "chars": ["0"]},
+    {"start": "S3", "end": "S5", "chars": ["0"]},
+    {"start": "S3", "end": "S6", "chars": ["1"]},
+    {"start": "S4", "end": "S5", "chars": ["0"]},
+    {"start": "S4", "end": "S6", "chars": ["1"]},
+    {"start": "S5", "end": "S4", "chars": ["1"]},
+    {"start": "S5", "end": "S6", "chars": ["0"]},
+    {"start": "S6", "end": "S6", "chars": ["1"]},
+    {"start": "S6", "end": "S6", "chars": ["0"]}
   ]
 }

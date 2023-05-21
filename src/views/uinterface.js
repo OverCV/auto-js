@@ -44,20 +44,20 @@ export default class UInterface {
 
         /* TODO: Change whenever is needed to see an dynamic or static view */
         if (this.sel === 0) {
+            this.diagram = this.$(go.Diagram, this.myDiv, {
+                initialContentAlignment: go.Spot.Center,
+                layout: this.$(go.LayeredDigraphLayout, {
+                    layerSpacing: 50, // Espacio entre las capas del layout
+                    columnSpacing: 30, // Espacio entre las columnas del layout
+                    setsPortSpots: false, // Desactiva la asignación automática de puntos de conexión de los nodos
+                })
+            });
+        } else {
             this.diagram =
                 this.$(go.Diagram, this.myDiv,
                     {
                         initialContentAlignment: go.Spot.Center,
-                        layout: this.$(go.LayeredDigraphLayout),
-                        "layout.layerSpacing": 30,
-                        "layout.columnSpacing": 30,
-                    }
-                )
-        } else {
-            this.diagram =
-                this.diagram =
-                this.$(go.Diagram, this.myDiv,
-                    { initialContentAlignment: go.Spot.Center }
+                    },
                 )
         }
     }
@@ -80,10 +80,11 @@ export default class UInterface {
             if (state.getIsInitial() && state.getIsFinal()) { colors = ['#2DD4BF', '#FF5E5B'] }
 
             let forma = state.getData() == this.actualState.getData() ? 'Diamond' : 'Circle'
-
+            let isEnd = state.getIsFinal()? 'End' : ''
+            
             this.nodes.push({
                 key: state.getData(), size: 50,
-                gradient: colors, shape: forma
+                gradient: colors, shape: forma, category: isEnd
             })
         })
         this.diagram.nodeTemplate = this.getNodeTemplate()
@@ -92,6 +93,10 @@ export default class UInterface {
     createLinks(transitions) {
         transitions.forEach(transition => {
             let characters = transition.getChars()
+            characters = characters.map(char => {
+                return char === '_' ? 'λ' : char
+                // return char === '_' ? 'ε' : char
+            })
             characters = characters.join(', ')
             this.links.push({
                 from: transition.getStart(), to: transition.getEnd(),

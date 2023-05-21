@@ -11,19 +11,22 @@
     {"data": "G", "isInitial": false,"isFinal": false, "adjacent":{}},
     {"data": "H", "isInitial": false,"isFinal": false, "adjacent":{}},
     {"data": "I", "isInitial": false,"isFinal": false, "adjacent":{}},
-    {"data": "J", "isInitial": false,"isFinal": true, "adjacent":{}}
+    {"data": "J", "isInitial": false,"isFinal": false, "adjacent":{}},
+    {"data": "K", "isInitial": false,"isFinal": true, "adjacent":{}}
   ],
   "transitions": [
-    {"start": "A", "end": "B", "chars": ["a"]},
+    {"start": "A", "end": "B", "chars": ["_"]},
+    {"start": "A", "end": "H", "chars": ["_"]},
     {"start": "B", "end": "C", "chars": ["_"]},
-    {"start": "C", "end": "D", "chars": ["a"]},
-    {"start": "C", "end": "D", "chars": ["_"]},
-    {"start": "D", "end": "E", "chars": ["_"]},
-    {"start": "E", "end": "F", "chars": ["_"]},
-    {"start": "E", "end": "H", "chars": ["_"]},
-    {"start": "F", "end": "G", "chars": ["a"]},
-    {"start": "H", "end": "I", "chars": ["b"]},
-    {"start": "G", "end": "J", "chars": ["_"]},
-    {"start": "I", "end": "J", "chars": ["_"]}
+    {"start": "B", "end": "D", "chars": ["_"]},
+    {"start": "C", "end": "E", "chars": ["a"]},
+    {"start": "D", "end": "F", "chars": ["b"]},
+    {"start": "E", "end": "G", "chars": ["_"]},
+    {"start": "F", "end": "G", "chars": ["_"]},
+    {"start": "G", "end": "B", "chars": ["_"]},
+    {"start": "G", "end": "H", "chars": ["_"]},
+    {"start": "H", "end": "I", "chars": ["a"]},
+    {"start": "I", "end": "J", "chars": ["b"]},
+    {"start": "J", "end": "K", "chars": ["b"]}
   ]
 }

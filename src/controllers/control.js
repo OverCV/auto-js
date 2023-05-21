@@ -66,7 +66,7 @@ export default class Control {
                         return state
                     })
                     automata.setStates(states)
-                    
+
                     let transitions = data.transitions.map(transitionData => {
                         return new Transition(
                             transitionData.start, transitionData.end, transitionData.chars

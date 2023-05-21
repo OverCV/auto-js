@@ -99,6 +99,17 @@ export default class Automata {
         this.regEx = new RegExp(`^[${symbols}]+$`)
     }
 
+    getLanguage() {
+        this.transitions.forEach(tran => {
+            tran.getChars().forEach(char => {
+                if (!this.language.includes(char)) {
+                    this.language.push(char)
+                }
+            })
+        })
+        return this.language
+    }
+
     seeStates(str = '') {
         this.states.forEach(state => {
             str += state.toString() + ' '
@@ -113,15 +124,6 @@ export default class Automata {
         })
         return str
     }
-
-    /*  */
-
-    // readString(string) {
-    //     // read each character of the string
-    //     for (let i = 0; i < string.length; i++) {
-    //         console.log(string[i])
-    //     }
-    // }
 
     toString() {
         return `States: ${this.seeStates()}

@@ -1,3 +1,8 @@
 {
-    "liveServer.settings.port": 5505
+    "liveServer.settings.port": 5505,
+    "cSpell.words": [
+        "fstate",
+        "rstate",
+        "tchar"
+    ]
 }
