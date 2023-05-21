@@ -37,6 +37,10 @@ export default class Automata {
     getState(data) {
         return this.states.find(state => state.data.includes(data))
     }
+    addAdjacent(data, adjacent) {
+        let state = this.getState(data)
+        state.setAdjacent(adjacent)
+    }
 
     setTransitions(transitions) {
         this.transitions = transitions
@@ -55,6 +59,14 @@ export default class Automata {
 
     existState(data) {
         return this.states.some(state => state.data.includes(data));
+    }
+
+    getInitialState() {
+        let initialState
+        this.states.forEach(state => {
+            if (state.getIsInitial()) { initialState = state; return }
+        })
+        return initialState
     }
 
     newState(data, isFinal) {
@@ -102,6 +114,9 @@ export default class Automata {
     getLanguage() {
         this.transitions.forEach(tran => {
             tran.getChars().forEach(char => {
+                if (char == '_') {
+                    return
+                }
                 if (!this.language.includes(char)) {
                     this.language.push(char)
                 }
