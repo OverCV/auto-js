@@ -74,12 +74,12 @@ export default class Determiner {
         })
 
         // Exit validation
-        visitedTable.forEach(row => {
-            for (let col in row) {
-                console.log(col)
-                console.log(row[col])
-            }
-        })
+        // visitedTable.forEach(row => {
+        //     for (let col in row) {
+        //         console.log(col)
+        //         console.log(row[col])
+        //     }
+        // })
 
         // Starting with initial in a list!
         // All states are combined and it return the full list of adjacent
@@ -88,45 +88,29 @@ export default class Determiner {
         newRow['destiny'] = this.mergeSubsets(states)
         console.log('row', newRow)
 
-        if (visitedTable.length == 0) {
-            visitedTable.push(newRow)
-        }
-
-        visitedTable.forEach(row => {
+        for (let tChar in newRow['destiny']) {
             let visitedState = false
-            for (let col in newRow['destiny']) {
-
-                let statesCol = newRow['destiny'][col]
-                if (this.sameElements(row['origin'], statesCol)) {
-                    // row['origin'].includes(...statesCol)
+            let tCharStates = newRow['destiny'][tChar]
+            visitedTable.forEach(row => {
+                if (this.sameElements(row['origin'], tCharStates)) {
                     visitedState = true
-                    // console.log('col',)
+                    // Ahora, validando si cada columna está en el origen, si no está debe
+                    // evaluarse su mergeSubset.
                 }
-            }
-        })
-        // For each state in the row, it's adjacent are evaluated
-
-
-        // for (let col in row) {
-        //     let adjacent = row[col]
-
-        //     if (row == 'origin') {
-
-        //     }
-        //     console.log(col)
-        //     adjacent.forEach(element => {
-
-        //     })
-
-
-
-        //     console.log('adj', adjacent)
-        //     // Recursive call
-        //     this.setAdjacentTable(adjacent, visitedTable)
-        // }
-
-        return
-        // this.setAdjacentTable(, visitedTable)
+            })
+            if (!visitedState) {
+                console.log('not:v:', tCharStates)
+                let states = []
+                tCharStates.forEach(stateData => {
+                    let state = this.automata.getState(stateData)
+                    // adjacent = state.getAdjacent()
+                    states.push(state)
+                    // this.mergeSubsets()
+                })
+                this.setAdjacentTable(states, visitedTable)
+            } else { return }
+        }
+        return visitedTable
     }
 
     sameElements(list1, list2) {
@@ -168,8 +152,6 @@ export default class Determiner {
         return fullCharSet
     }
     mergeSet(states) {
-
-
         states.forEach(state => {
             let charSet = state.getAdjacent()
 
