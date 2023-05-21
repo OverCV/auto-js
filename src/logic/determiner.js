@@ -27,8 +27,10 @@ export default class Determiner {
         // Use the table to create the new automata
         // let newAutomata = this.formatAutomata(adjacent)
         let rowStates = [this.automata.getState('C'), this.automata.getState('H'), this.automata.getState('F')]
-        let mSets = this.mergeSubsets(rowStates)
-        console.log(mSets)
+
+        let initialState = this.automata.getInitialState()
+        let table = this.setAdjacentTable([initialState])
+        console.log(table)
 
         // Auto refactoring
         // let auto = this.automataFormat()
@@ -66,6 +68,84 @@ export default class Determiner {
         return new Automata()
     }
 
+    setAdjacentTable(states, visitedTable = []) {
+        let statesKeys = states.map(state => {
+            return state.getData()
+        })
+
+        // Exit validation
+        visitedTable.forEach(row => {
+            for (let col in row) {
+                console.log(col)
+                console.log(row[col])
+            }
+        })
+
+        // Starting with initial in a list!
+        // All states are combined and it return the full list of adjacent
+        let newRow = {}
+        newRow['origin'] = statesKeys
+        newRow['destiny'] = this.mergeSubsets(states)
+        console.log('row', newRow)
+
+        if (visitedTable.length == 0) {
+            visitedTable.push(newRow)
+        }
+
+        visitedTable.forEach(row => {
+            let visitedState = false
+            for (let col in newRow['destiny']) {
+
+                let statesCol = newRow['destiny'][col]
+                if (this.sameElements(row['origin'], statesCol)) {
+                    // row['origin'].includes(...statesCol)
+                    visitedState = true
+                    // console.log('col',)
+                }
+            }
+        })
+        // For each state in the row, it's adjacent are evaluated
+
+
+        // for (let col in row) {
+        //     let adjacent = row[col]
+
+        //     if (row == 'origin') {
+
+        //     }
+        //     console.log(col)
+        //     adjacent.forEach(element => {
+
+        //     })
+
+
+
+        //     console.log('adj', adjacent)
+        //     // Recursive call
+        //     this.setAdjacentTable(adjacent, visitedTable)
+        // }
+
+        return
+        // this.setAdjacentTable(, visitedTable)
+    }
+
+    sameElements(list1, list2) {
+        if (list1.length !== list2.length) {
+            return false
+        }
+        const set1 = new Set(list1)
+        const set2 = new Set(list2)
+        if (set1.size !== set2.size) {
+            return false
+        }
+        for (const element of set1) {
+            if (!set2.has(element)) {
+                return false
+            }
+        }
+        return true
+    }
+
     /**
      * Function that given the adjacent list of a states, merge the subsets of it's adjacent elements
      * @param {states} states is a list of given states
@@ -85,8 +165,22 @@ export default class Determiner {
                 fullCharSet[tChar] = Array.from(unionSet)
             }
         })
-
         return fullCharSet
+    }
+    mergeSet(states) {
+
+
+        states.forEach(state => {
+            let charSet = state.getAdjacent()
+
+            for (let tChar in charSet) {
+                let unionSet = new Set([
+                    ...(fullCharSet[tChar] || []),
+                    ...charSet[tChar]
+                ])
+                fullCharSet[tChar] = Array.from(unionSet)
+            }
+        })
     }
 
     realAdjacent(states) {
