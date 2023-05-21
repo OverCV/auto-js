@@ -1,4 +1,9 @@
+import State from "../models/state.js"
+import Transition from "../models/transition.js"
+import Automata from "../models/automata.js"
 // import Template from './template.js'
+
+
 
 export default class UInterface {
     constructor() {
@@ -70,14 +75,14 @@ export default class UInterface {
     createNodes(states) {
         states.forEach(state => {
             let colors = ['#48BBF2', '#1D8FE1']
-            if (state.isStart) { colors = ['#00D1B2', '#2DD4BF'] }
-            if (state.isEnd) { colors = ['#FF5E5B', '#FFC145'] }
-            if (state.isStart && state.isEnd) { colors = ['#2DD4BF', '#FF5E5B'] }
+            if (state.getIsInitial()) { colors = ['#00D1B2', '#2DD4BF'] }
+            if (state.getIsFinal()) { colors = ['#FF5E5B', '#FFC145'] }
+            if (state.getIsInitial() && state.getIsFinal()) { colors = ['#2DD4BF', '#FF5E5B'] }
 
-            let forma = state.data == this.actualState.data ? 'Diamond' : 'Circle'
+            let forma = state.getData() == this.actualState.getData() ? 'Diamond' : 'Circle'
 
             this.nodes.push({
-                key: state.data, size: 50,
+                key: state.getData(), size: 50,
                 gradient: colors, shape: forma
             })
         })
@@ -86,12 +91,10 @@ export default class UInterface {
 
     createLinks(transitions) {
         transitions.forEach(transition => {
-            let characters = ''
-            transition.chars.forEach(char => {
-                characters += char + ', '
-            })
+            let characters = transition.getChars()
+            characters = characters.join(', ')
             this.links.push({
-                from: transition.start, to: transition.end,
+                from: transition.getStart(), to: transition.getEnd(),
                 color: '#CBD5E0', text: characters
             })
         })

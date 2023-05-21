@@ -4,7 +4,7 @@ export default class Transition {
     constructor(start, end, chars) {
         this.start = start
         this.end = end
-        this.chars = Array[chars]
+        this.chars = chars
     }
 
     setStart(start) {

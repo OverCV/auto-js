@@ -18,7 +18,7 @@ export default class Function {
     getInitialState() {
         let states = this.automata.getStates()
         for (let i = 0; i < states.length; i++) {
-            if (states[i].isStart) {
+            if (states[i].getIsInitial()) {
                 return states[i]
             }
         }
@@ -28,8 +28,9 @@ export default class Function {
         this.actualState = this.automata.getStates()[0]
         let acceptable = false
         for (let i = 0; i < string.length; i++) {
-            if (this.actualState.isFinal())
+            if (this.actualState.isFinal()) {
                 acceptable = this.getNextState()
+            }
         }
     }
 

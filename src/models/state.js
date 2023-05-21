@@ -3,7 +3,7 @@ export default class State {
         this.data = data
         this.isInitial = false
         this.isFinal = false
-        this.adjacent = { [key]: string }
+        this.adjacent = {}
     }
 
     setData(data) {

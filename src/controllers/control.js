@@ -1,40 +1,38 @@
 import Automata from '../models/automata.js'
+import Transition from '../models/transition.js'
+import State from '../models/state.js'
 import Function from '../logic/function.js'
 import UInterface from '../views/uinterface.js'
+import Determiner from '../logic/determiner.js'
 
 export default class Control {
     constructor() {
         this.automats = []
         this.automata = null
         this.uInterface = new UInterface()
+        this.determiner = new Determiner()
         this.automatsLoaded = 0 /* Variable to load the interface until all Json's are in */
         this.selector = []
         this.func = null
 
         this.jsonBtn = document.getElementById('fileInput')
         this.nextBtn = document.getElementById('nextBtn')
-        // this.unionBtn = document.getElementById('unionBtn')
-        // this.intersectionBtn = document.getElementById('intersectionBtn')
-        // this.inverseBtn = document.getElementById('inverseBtn')
-        // this.complementBtn = document.getElementById('complementBtn')
-        // this.clearBtn = document.getElementById('clearBtn')
+        this.determineBtn = document.getElementById('determine')
 
         this.automataSel = document.getElementById('automataSel')
-        this.inputStr = document.getElementById('inputStr');
-        this.linkBtn = document.getElementById('reLink');
+        this.inputStr = document.getElementById('inputStr')
+        this.linkBtn = document.getElementById('reLink')
 
         this.jsonBtn.addEventListener('change', this.clickJson.bind(this))
         this.nextBtn.addEventListener('click', this.nextState.bind(this))
-        // this.unionBtn.addEventListener('click', this.union.bind(this))
-        // this.intersectionBtn.addEventListener('click', this.intersection.bind(this))
-        // this.inverseBtn.addEventListener('click', this.inverse.bind(this))
-        // this.complementBtn.addEventListener('click', this.complement.bind(this))
-        // this.clearBtn.addEventListener('click', this.clear.bind(this))
+        this.determineBtn.addEventListener('click', this.determineAutomata.bind(this))
 
         this.automataSel.addEventListener('click', this.selectAutomata.bind(this))
         this.inputStr.addEventListener('keyup', this.inputLoad.bind(this))
         this.linkBtn.addEventListener('click', this.reLink.bind(this))
     }
+
+
 
     loadInterface() {
         this.inputStr.removeAttribute('disabled')
@@ -44,36 +42,7 @@ export default class Control {
 
             this.uInterface.run(this.automats)
         }
-        // console.log(actualState)
-        // this.uInterface.setActualState(this.automata)
     }
-
-    union() {
-        console.log('The union function was clicked.')
-        console.log('AUTOS', this.automats)
-    }
-
-    union() {
-        console.log('The union function was clicked.')
-    }
-
-    intersection() {
-        console.log('The intersection function was clicked.')
-    }
-
-    inverse() {
-        console.log('The inverse function was clicked.')
-    }
-
-    complement() {
-        console.log('The complement function was clicked.')
-    }
-
-    clear() {
-        console.log('The clear function was clicked.')
-    }
-
-    loadJson() { }
 
 
     clickJson(e) {
@@ -89,8 +58,22 @@ export default class Control {
 
                     automata.setName(data.name)
                     automata.setAlphabet(data.alphabet)
-                    automata.setStates(data.states)
-                    automata.setTransitions(data.transitions)
+
+                    let states = data.states.map(stateData => {
+                        let state = new State(stateData.data)
+                        state.setIsInitial(stateData.isInitial)
+                        state.setIsFinal(stateData.isFinal)
+                        return state
+                    })
+                    automata.setStates(states)
+                    
+                    let transitions = data.transitions.map(transitionData => {
+                        return new Transition(
+                            transitionData.start, transitionData.end, transitionData.chars
+                        )
+                    })
+                    automata.setTransitions(transitions)
+
                     files.length > 1 ?
                         this.showToast('New Automats from JSON!') :
                         this.showToast('New Automata from JSON!')
@@ -124,14 +107,6 @@ export default class Control {
         })
     }
 
-
-    setTransitionFunc() {
-        this.func = new Function(this.automata)
-        // After the user put the Json, the interface is loaded, this requires to know which actualState is, so is needed to arrive the transition function before the real Interface executes.
-        this.uInterface.setActualState(this.func.getInitialState())
-    }
-
-
     inputLoad(e) {
         if (e.key === 'Enter') {
             let str = this.inputStr.value
@@ -149,6 +124,12 @@ export default class Control {
         }
     }
 
+    setTransitionFunc() {
+        this.func = new Function(this.automata)
+        // After the user put the Json, the interface is loaded, this requires to know which actualState is, so is needed to arrive the transition function before the real Interface executes.
+        this.uInterface.setActualState(this.func.getInitialState())
+    }
+
     nextState() {
         if (this.func.getNextState()) {
             this.showToast(`All string has been red`)
@@ -157,6 +138,17 @@ export default class Control {
         this.showToast(`You are on state ${this.func.getActualState().data}`)
         this.uInterface.setActualState(this.func.getActualState())
         this.uInterface.createAutomats()
+    }
+
+    determineAutomata() {
+        if (this.automata == null) {
+            this.showToast('No automata selected!')
+            return
+        }
+        this.determiner.setAutomata(this.automata)
+
+        let newAutomat = this.determiner.determine()
+        this.automata = newAutomat
     }
 
     reLink() {
