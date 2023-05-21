@@ -25,7 +25,10 @@ export default class Determiner {
         const adjacent = this.realAdjacent(states)
 
         // Use the table to create the new automata
-        let newAutomata = this.formatAutomata(adjacent)
+        // let newAutomata = this.formatAutomata(adjacent)
+        let rowStates = [this.automata.getState('C'), this.automata.getState('H'), this.automata.getState('F')]
+        let mSets = this.mergeSubsets(rowStates)
+        console.log(mSets)
 
         // Auto refactoring
         // let auto = this.automataFormat()
@@ -35,25 +38,55 @@ export default class Determiner {
 
     formatAutomata(adjacentTable) {
 
-        
-       
-
-        return
 
         let initial = this.automata.getInitialState()
 
         let visited = []
         let evaluated = adjacentTable[initial.getData()]
 
-        adjacentTable.forEach(stateRow => {
+        let repeated = false
 
-            if (visited.includes(evaluated)) {
-                console.log('wat')
+        while (!repeated) {
+            for (const tchar of charSet) {
+                let adjacent = initial.getAdjacent()
+
+                if (adjacent[tchar]) {
+                    let state = adjacent[tchar]
+                    if (visited.includes(state)) {
+                        repeated = true
+                    }
+                    visited.push(state)
+                }
             }
-            console.log(initial.getData(), adjacentTable)
+        }
+        this.automata.getStates().forEach(state => {
+
         })
 
         return new Automata()
+    }
+
+    /**
+     * Function that given the adjacent list of a states, merge the subsets of it's adjacent elements
+     * @param {states} states is a list of given states
+     * @returns a new State and a transition, which can be used later on.
+     */
+    mergeSubsets(states) {
+        let fullCharSet = {}
+
+        states.forEach(state => {
+            let charSet = state.getAdjacent()
+
+            for (let tChar in charSet) {
+                let unionSet = new Set([
+                    ...(fullCharSet[tChar] || []),
+                    ...charSet[tChar]
+                ])
+                fullCharSet[tChar] = Array.from(unionSet)
+            }
+        })
+
+        return fullCharSet
     }
 
     realAdjacent(states) {
@@ -75,12 +108,12 @@ export default class Determiner {
      */
     stateTuples(state, language) {
         let tCharSet = {}
-        for (let sym of language) {
+        for (let symbol of language) {
             // List is being reset to don't overlap results for the columns, adjacent it's global.
             this.adjacent = []
-            this.adjacentByChar(state, sym, true)
+            this.adjacentByChar(state, symbol, true)
 
-            tCharSet[sym] = this.adjacent
+            tCharSet[symbol] = this.adjacent
             // console.log('char:', sym, '| adj:', this.adjacent)
         }
         let row = {}
@@ -211,14 +244,14 @@ export default class Determiner {
     }
 
     createDictionary(list) {
-        let dictionary = {};
+        let dictionary = {}
 
         list.forEach(item => {
             if (!(item in dictionary)) {
-                dictionary[item] = [];
+                dictionary[item] = []
             }
-        });
+        })
 
-        return dictionary;
+        return dictionary
     }
 }
