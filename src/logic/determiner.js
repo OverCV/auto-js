@@ -82,14 +82,14 @@ export default class Determiner {
 
     getStatesAtt(statesData) {
         let stateAtt = {}
-        stateAtt['isInitial'] = false
+        stateAtt['isInitial'] = true
         stateAtt['isFinal'] = false
         let states = statesData.map(state => {
             return this.automata.getState(state)
         })
         states.forEach(state => {
-            if (state.getIsInitial()) {
-                stateAtt['isInitial'] = true
+            if (!state.getIsInitial()) {
+                stateAtt['isInitial'] = false
             }
             if (state.getIsFinal()) {
                 stateAtt['isFinal'] = true
