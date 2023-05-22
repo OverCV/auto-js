@@ -7,6 +7,7 @@ export default class Determiner {
     constructor() {
         this.automata = null
         this.actualState = null
+        this.automataTable = null
         this.setStates = []
         this.adjacent = []
     }
@@ -22,100 +23,93 @@ export default class Determiner {
         // this.isLooped()
 
         // Get all the real transitions for every transition
-        const adjacent = this.realAdjacent(states)
+        this.setRealAdjacent(states)
 
         // Use the table to create the new automata
         // let newAutomata = this.formatAutomata(adjacent)
-        let rowStates = [this.automata.getState('C'), this.automata.getState('H'), this.automata.getState('F')]
+        // let rowStates = [this.automata.getState('C'), this.automata.getState('H'), this.automata.getState('F')]
 
-        let initialState = this.automata.getInitialState()
+        // let initialState = this.automata.getInitialState()
         // let table = this.setAdjacentTable([initialState])
-        this.tableCreation()
+        this.automataTable = this.tableCreation()
         // console.log(table)
 
         // Auto refactoring
-        // let auto = this.automataFormat()
-        // Auto assignment
-        // return auto
+        return this.formatAutomata();
     }
-    // !
-    formatAutomata(adjacentTable) {
 
+    formatAutomata() {
+        let newAutomata = new Automata()
+        newAutomata.setName('AFD')
 
-        let initial = this.automata.getInitialState()
+        let aTable = this.automataTable
+        let register = {}
 
-        let visited = []
-        let evaluated = adjacentTable[initial.getData()]
+        // States and registers creation
+        for (let i = 0; i < aTable.length; i++) {
+            let index = `Q${i}`
+            register[index] = aTable[i]
+            let stateData = aTable[i]['origin']
+            // console.log('stateData', stateData)
+            let stateAtt = this.getStatesAtt(stateData)
 
-        let repeated = false
+            newAutomata.newState(index, stateAtt['isInitial'], stateAtt['isFinal'])
+        }
 
-        while (!repeated) {
-            for (const tchar of charSet) {
-                let adjacent = initial.getAdjacent()
+        // console.log(register)
+        // Transitions creation
+        for (let originData in register) {
 
-                if (adjacent[tchar]) {
-                    let state = adjacent[tchar]
-                    if (visited.includes(state)) {
-                        repeated = true
-                    }
-                    visited.push(state)
-                }
+            // let destinyData = this.registerByStates(register[originData]['origin'], register)
+
+            for (let tChar in register[originData]['destiny']) {
+                let destiny = register[originData]['destiny'][tChar]
+                // console.log('destiny', destiny)
+                let destinyData = this.registerByStates(destiny, register)
+                // console.log('destiny', destinyData)
+
+                // let newTransition = new Transition(originData,)
+                newAutomata.newTransition(originData, destinyData, [tChar])
+                // 
+                console.log(
+                    // 'originData', originData, '| destiny', destinyData, '| tChar', tChar
+                )
             }
         }
-        this.automata.getStates().forEach(state => {
-
-        })
-
-        return new Automata()
+        // console.log(newAutomata)
+        return newAutomata
     }
 
-    // !
-    setAdjacentTable(states, visitedTable = []) {
-        let statesKeys = states.map(state => {
-            return state.getData()
+    getStatesAtt(statesData) {
+        let stateAtt = {}
+        stateAtt['isInitial'] = false
+        stateAtt['isFinal'] = false
+        let states = statesData.map(state => {
+            return this.automata.getState(state)
         })
+        states.forEach(state => {
+            if (state.getIsInitial()) {
+                stateAtt['isInitial'] = true
+            }
+            if (state.getIsFinal()) {
+                stateAtt['isFinal'] = true
+            }
+        })
+        return stateAtt
+    }
 
-        // Exit validation
-        // visitedTable.forEach(row => {
-        //     for (let col in row) {
-        //         console.log(col)
-        //         console.log(row[col])
-        //     }
-        // })
-
-        // Starting with initial in a list!
-        // All states are combined and it return the full list of adjacent
-        let newRow = {}
-        newRow['origin'] = statesKeys
-        newRow['destiny'] = this.mergeSubsets(states)
-        console.log('row', newRow)
-
-        for (let tChar in newRow['destiny']) {
-            let visitedState = false
-            let tCharStates = newRow['destiny'][tChar]
-            visitedTable.forEach(row => {
-                if (this.sameElements(row['origin'], tCharStates)) {
-                    visitedState = true
-                    // Ahora, validando si cada columna está en el origen, si no está debe
-                    // evaluarse su mergeSubset.
-                }
-            })
-            if (!visitedState) {
-                visitedTable.push(newRow)
-                console.log('not:v:', tCharStates)
-                let states = []
-                tCharStates.forEach(stateData => {
-                    let state = this.automata.getState(stateData)
-                    // adjacent = state.getAdjacent()
-                    states.push(state)
-                    // this.mergeSubsets()
-                })
-                this.setAdjacentTable(states, visitedTable)
-            } else { return }
+    registerByStates(states, register) {
+        let dataState = null
+        for (let row in register) {
+            let element = register[row]
+            // console.log('element:', element, '| states:', states)
+            if (this.sameElements(element['origin'], states)) {
+                // console.log('data:', states, '| row:', row)
+                dataState = row
+            }
         }
-        return visitedTable
+        return dataState
     }
-
 
     tableCreation() {
         let autoTable = []
@@ -141,8 +135,9 @@ export default class Determiner {
                 autoTable.push(row)
             })
         }
-        console.table(autoTable)
-        console.log(autoTable)
+        // console.table(autoTable)
+        // console.log(autoTable)
+        return this.uniqueElements(autoTable)
     }
 
     /**
@@ -168,8 +163,8 @@ export default class Determiner {
 
         // Select the list of destiny states
         table.forEach(outRow => {
-            let exists = false
             for (let tChar in outRow['destiny']) {
+                let exists = false
                 let destinies = outRow['destiny'][tChar]
 
                 table.forEach(inRow => {
@@ -181,6 +176,7 @@ export default class Determiner {
                     let existingState = this.sameElements(origins, destinies)
                     if (existingState) {
                         exists = true
+                        // console.log('exist:', destinies)
                     }
                 })
                 // If one list of destiny states isn't on the origin, add as newRow.
@@ -250,17 +246,17 @@ export default class Determiner {
         })
     }
 
-    realAdjacent(states) {
-        let adjacentTable = []
+    setRealAdjacent(states) {
+        // let adjacentTable = []
         let language = this.automata.getLanguage()
 
         // For each new state
         states.forEach(state => {
-            let tuples = this.stateTuples(state, language)
-            adjacentTable.push(tuples)
+            this.stateTuples(state, language)
+            // adjacentTable.push(tuples)
         })
 
-        return adjacentTable
+        // return adjacentTable
     }
 
     /**
@@ -277,10 +273,10 @@ export default class Determiner {
             tCharSet[symbol] = this.adjacent
             // console.log('char:', sym, '| adj:', this.adjacent)
         }
-        let row = {}
-        row[state.getData()] = tCharSet
+        // let row = {}
+        // row[state.getData()] = tCharSet
         this.automata.addAdjacent(state.getData(), tCharSet)
-        return row
+        // return row
     }
 
     selectTrans(state) {
@@ -377,12 +373,6 @@ export default class Determiner {
         // })
     }
 
-    automataFormat(dict) {
-        // let auto = new Automata()
-        // Process
-        // return auto
-    }
-
     setAutomata(automata) {
         this.automata = automata
     }
@@ -397,22 +387,33 @@ export default class Determiner {
         return this.actualState
     }
 
-    setSetStates(setStates) {
-        this.setStates = setStates
-    }
-    getSetStates() {
-        return this.setStates
+    uniqueElements(list) {
+        return Array.from(
+            new Set(list.map(JSON.stringify))
+        ).map(JSON.parse)
+        // return [
+        //     ...new Map(
+        //         list.map(item => [item['origin'], item])
+        //     ).values()
+        // ];
     }
 
-    createDictionary(list) {
-        let dictionary = {}
+    // setSetStates(setStates) {
+    //     this.setStates = setStates
+    // }
+    // getSetStates() {
+    //     return this.setStates
+    // }
 
-        list.forEach(item => {
-            if (!(item in dictionary)) {
-                dictionary[item] = []
-            }
-        })
+    // createDictionary(list) {
+    //     let dictionary = {}
 
-        return dictionary
-    }
+    //     list.forEach(item => {
+    //         if (!(item in dictionary)) {
+    //             dictionary[item] = []
+    //         }
+    //     })
+
+    //     return dictionary
+    // }
 }

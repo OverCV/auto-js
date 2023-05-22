@@ -80,11 +80,11 @@ export default class UInterface {
             if (state.getIsInitial() && state.getIsFinal()) { colors = ['#2DD4BF', '#FF5E5B'] }
 
             let forma = state.getData() == this.actualState.getData() ? 'Diamond' : 'Circle'
-            let isEnd = state.getIsFinal()? 'End' : ''
-            
+            // let isEnd = state.getIsFinal() ? 'End' : ''
+
             this.nodes.push({
                 key: state.getData(), size: 50,
-                gradient: colors, shape: forma, category: isEnd
+                gradient: colors, shape: forma
             })
         })
         this.diagram.nodeTemplate = this.getNodeTemplate()

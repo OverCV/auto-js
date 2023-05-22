@@ -9,6 +9,7 @@ export default class Control {
     constructor() {
         this.automats = []
         this.automata = null
+        this.automataFD = null
         this.uInterface = new UInterface()
         this.determiner = new Determiner()
         this.automatsLoaded = 0 /* Variable to load the interface until all Json's are in */
@@ -32,8 +33,6 @@ export default class Control {
         this.linkBtn.addEventListener('click', this.reLink.bind(this))
     }
 
-
-
     loadInterface() {
         this.inputStr.removeAttribute('disabled')
 
@@ -43,7 +42,6 @@ export default class Control {
             this.uInterface.run(this.automats)
         }
     }
-
 
     clickJson(e) {
         this.automataSel.options[0].remove()
@@ -147,8 +145,15 @@ export default class Control {
         }
         this.determiner.setAutomata(this.automata)
 
-        let newAutomat = this.determiner.determine()
-        this.automata = newAutomat
+        let newAutomata = this.determiner.determine()
+        // this.automata = newAutomata
+        this.automats.push(newAutomata)
+        // let actualState = newAutomata.getInitialState()
+        // this.uInterface.setActualState(actualState)
+
+        // this.uInterface.run()
+        console.log(newAutomata.toString())
+        this.loadInterface()
     }
 
     reLink() {

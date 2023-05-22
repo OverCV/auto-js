@@ -69,18 +69,16 @@ export default class Automata {
         return initialState
     }
 
-    newState(data, isFinal) {
+    newState(data, isInitial, isFinal) {
         let newState = new State(data)
-        if (isFinal) {
-            newState.isFinal = true
-        }
         if (this.existObj(this.states, newState)) {
             console.log('State already exists.')
             return
         }
-
+        newState.setIsInitial(isInitial)
+        newState.setIsFinal(isFinal)
         this.states.push(newState)
-        console.log('New state added.')
+        // console.log('New state added.')
     }
 
     newTransition(starts, ends, data) {
@@ -91,13 +89,13 @@ export default class Automata {
             return
         }
 
-        if (data.contains('_')) { data = ['_'] }
+        if (data.includes('_')) { data = ['_'] }
 
         if (this.existState(starts) && this.existState(ends)) {
             // if (this.alphabet.test(data)) {
             // }
             let starterState = this.getState(starts)
-            starterState.addAdjacent(ends)
+            starterState.setAdjacent(ends)
             // getAdjacent().push(ends)
             this.transitions.push(newTransition)
 
