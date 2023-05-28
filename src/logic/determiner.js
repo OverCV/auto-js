@@ -6,9 +6,9 @@ export default class Determiner {
 
     constructor() {
         this.automata = null
-        this.actualState = null
+        // this.actualState = null
         this.automataTable = null
-        this.setStates = []
+        // this.setStates = []
         this.adjacent = []
     }
 
@@ -38,78 +38,128 @@ export default class Determiner {
         return this.formatAutomata();
     }
 
-    formatAutomata() {
-        let newAutomata = new Automata()
-        newAutomata.setName('AFD')
+    // --------------------------------------------------------------------------------------------------------
 
-        let aTable = this.automataTable
-        let register = {}
+    setRealAdjacent(states) {
+        // let adjacentTable = []
+        let language = this.automata.getLanguage()
 
-        // States and registers creation
-        for (let i = 0; i < aTable.length; i++) {
-            let index = `Q${i}`
-            register[index] = aTable[i]
-            let stateData = aTable[i]['origin']
-            // console.log('stateData', stateData)
-            let stateAtt = this.getStatesAtt(stateData)
-
-            newAutomata.newState(index, stateAtt['isInitial'], stateAtt['isFinal'])
-        }
-
-        // console.log(register)
-        // Transitions creation
-        for (let originData in register) {
-
-            // let destinyData = this.registerByStates(register[originData]['origin'], register)
-
-            for (let tChar in register[originData]['destiny']) {
-                let destiny = register[originData]['destiny'][tChar]
-                // console.log('destiny', destiny)
-                let destinyData = this.registerByStates(destiny, register)
-                // console.log('destiny', destinyData)
-
-                // let newTransition = new Transition(originData,)
-                newAutomata.newTransition(originData, destinyData, [tChar])
-                // 
-                console.log(
-                    // 'originData', originData, '| destiny', destinyData, '| tChar', tChar
-                )
-            }
-        }
-        // console.log(newAutomata)
-        return newAutomata
-    }
-
-    getStatesAtt(statesData) {
-        let stateAtt = {}
-        stateAtt['isInitial'] = true
-        stateAtt['isFinal'] = false
-        let states = statesData.map(state => {
-            return this.automata.getState(state)
-        })
+        // For each new state
         states.forEach(state => {
-            if (!state.getIsInitial()) {
-                stateAtt['isInitial'] = false
-            }
-            if (state.getIsFinal()) {
-                stateAtt['isFinal'] = true
-            }
+            this.stateTuples(state, language)
+            // adjacentTable.push(tuples)
         })
-        return stateAtt
+
+        // return adjacentTable
     }
 
-    registerByStates(states, register) {
-        let dataState = null
-        for (let row in register) {
-            let element = register[row]
-            // console.log('element:', element, '| states:', states)
-            if (this.sameElements(element['origin'], states)) {
-                // console.log('data:', states, '| row:', row)
-                dataState = row
-            }
+    /**
+     * Function that for all the states, given a transition character, shows where you can
+     * arrive with it, works with an AFND.
+     */
+    stateTuples(state, language) {
+        let tCharSet = {}
+        for (let symbol of language) {
+            // List is being reset to don't overlap results for the columns, adjacent it's global.
+            this.adjacent = []
+            this.adjacentByChar(state, symbol, true)
+
+            tCharSet[symbol] = this.adjacent
+            // console.log('char:', sym, '| adj:', this.adjacent)
         }
-        return dataState
+        // let row = {}
+        // row[state.getData()] = tCharSet
+        console.log(tCharSet)
+        this.automata.addAdjacent(state.getData(), tCharSet)
+        // return row
     }
+
+    adjacentByChar(state, tChar, hasTChar) {
+        // let visited = []
+        let lamWay = false
+        // console.log('state:', state.toString(), '| hasTChar', hasTChar, '| visited:', visited, '| adjacent:', this.adjacent)
+        let transitions = this.selectTrans(state)
+        // console.log('transTo:', transitions)
+        // Exit condition I
+
+        // If the actual state has no transitions, must be added to the list
+        if (transitions.length === 0) {
+            if (!this.adjacent.includes(state.getData())) {
+                this.adjacent.push(state.getData())
+            }
+            // console.log('ev:fstate')
+            return
+        }
+
+        // Exit condition A
+        // if (visited.includes(state.getData())) {
+        //     console.log('ev:rstate')
+        //     return
+        // }
+        transitions.forEach(tran => {
+            if (tran.getChars().includes('_')) {
+                lamWay = true
+            }
+        })
+        let hadOneTChar = false
+        transitions.forEach(tran => {
+            if (tran.getChars().includes(tChar)) {
+                hadOneTChar = true
+            }
+        })
+        transitions.forEach(tran => {
+            // Recursive call A
+            if (tran.getChars().includes('_')) {
+                // console.log('ev:lambda')
+                //  If is lambda, then must travel to next state and re-evaluate.
+                // visited.push(state.getData())
+                let nextState = this.automata.getState(tran.getEnd())
+                // console.log('rc1:', nextState)
+                this.adjacentByChar(nextState, tChar, hasTChar)
+            } else if (tran.getChars().includes(tChar)) {
+                // Recursive call B
+                if (hasTChar) {
+                    // console.log('ev:char, true')
+                    let nextState = this.automata.getState(tran.getEnd())
+                    // console.log('rc2:', nextState)
+                    this.adjacentByChar(nextState, tChar, false)
+                } else {
+                    // Exit condition B
+                    // console.log('ev:char, false')
+                    // console.log('rc3:', visited, state.getData())
+                    if (!this.adjacent.includes(state.getData())) { /* If don't exist, push it */
+                        this.adjacent.push(state.getData())
+                    }
+                    // if (visited.includes(state.getData())) {
+                    //     return
+                    // }
+                    return
+                }
+            } else {
+                // if (tran.getChars().length != 0) {
+                //     console.log('ev:¬char')
+                // }
+                if (lamWay) {
+                    return
+                }
+
+                if (!this.adjacent.includes(state.getData())) { /* If don't exist, push it */
+                    this.adjacent.push(state.getData())
+                }
+                return
+            }
+        })
+        return
+    }
+
+    /* DONE */
+    selectTrans(state) {
+        return this.automata
+            .getTransitions()
+            .filter(transition => transition.getStart() === state.getData())
+    }
+
+    // --------------------------------------------------------------------------------------------------------
 
     tableCreation() {
         let autoTable = []
@@ -151,6 +201,28 @@ export default class Determiner {
         row['origin'] = statesData
         row['destiny'] = this.mergeSubsets(states)
         return row
+    }
+
+    /**
+     * Function that given the adjacent list of a states, merge the subsets of it's adjacent elements
+     * @param {states} states is a list of given states
+     * @returns a new State and a transition, which can be used later on.
+     */
+    mergeSubsets(states) {
+        let fullCharSet = {}
+
+        states.forEach(state => {
+            let charSet = state.getAdjacent()
+
+            for (let tChar in charSet) {
+                let unionSet = new Set([
+                    ...(fullCharSet[tChar] || []),
+                    ...charSet[tChar]
+                ])
+                fullCharSet[tChar] = Array.from(unionSet)
+            }
+        })
+        return fullCharSet
     }
 
     /**
@@ -211,167 +283,89 @@ export default class Determiner {
         return true
     }
 
-    /**
-     * Function that given the adjacent list of a states, merge the subsets of it's adjacent elements
-     * @param {states} states is a list of given states
-     * @returns a new State and a transition, which can be used later on.
-     */
-    mergeSubsets(states) {
-        let fullCharSet = {}
-
-        states.forEach(state => {
-            let charSet = state.getAdjacent()
-
-            for (let tChar in charSet) {
-                let unionSet = new Set([
-                    ...(fullCharSet[tChar] || []),
-                    ...charSet[tChar]
-                ])
-                fullCharSet[tChar] = Array.from(unionSet)
-            }
-        })
-        return fullCharSet
-    }
-    mergeSet(states) {
-        states.forEach(state => {
-            let charSet = state.getAdjacent()
-
-            for (let tChar in charSet) {
-                let unionSet = new Set([
-                    ...(fullCharSet[tChar] || []),
-                    ...charSet[tChar]
-                ])
-                fullCharSet[tChar] = Array.from(unionSet)
-            }
-        })
+    // Function than given a list, it give it back without repetitions.
+    uniqueElements(list) {
+        return Array.from(
+            new Set(list.map(JSON.stringify))
+        ).map(JSON.parse)
     }
 
-    setRealAdjacent(states) {
-        // let adjacentTable = []
-        let language = this.automata.getLanguage()
+    // --------------------------------------------------------------------------------------------------------
 
-        // For each new state
-        states.forEach(state => {
-            this.stateTuples(state, language)
-            // adjacentTable.push(tuples)
-        })
+    formatAutomata() {
+        let newAutomata = new Automata()
+        newAutomata.setName('AFD')
 
-        // return adjacentTable
-    }
+        let aTable = this.automataTable
+        let register = {}
 
-    /**
-     * Function that for all the states, given a transition character, shows where you can
-     * arrive with it, works with an AFND.
-     */
-    stateTuples(state, language) {
-        let tCharSet = {}
-        for (let symbol of language) {
-            // List is being reset to don't overlap results for the columns, adjacent it's global.
-            this.adjacent = []
-            this.adjacentByChar(state, symbol, true)
+        // States and registers creation
+        for (let i = 0; i < aTable.length; i++) {
+            let index = `Q${i}`
+            register[index] = aTable[i]
+            let stateData = aTable[i]['origin']
+            // console.log('stateData', stateData)
+            let stateAtt = this.getStatesAtt(stateData)
 
-            tCharSet[symbol] = this.adjacent
-            // console.log('char:', sym, '| adj:', this.adjacent)
+            newAutomata.newState(index, stateAtt['isInitial'], stateAtt['isFinal'])
         }
-        // let row = {}
-        // row[state.getData()] = tCharSet
-        this.automata.addAdjacent(state.getData(), tCharSet)
-        // return row
-    }
 
-    selectTrans(state) {
-        return this.automata
-            .getTransitions()
-            .filter(transition => transition.getStart() === state.getData())
-    }
+        console.log(register)
+        // Transitions creation
+        for (let originData in register) {
 
+            // let destinyData = this.registerByStates(register[originData]['origin'], register)
 
-    adjacentByChar(state, tChar, hasTChar) {
-        let visited = []
+            for (let tChar in register[originData]['destiny']) {
+                let destiny = register[originData]['destiny'][tChar]
+                // console.log('destiny', destiny)
+                let destinyData = this.registerByStates(destiny, register)
+                // console.log('destiny', destinyData)
 
-        // console.log('state:', state.toString(), '| hasTChar', hasTChar, '| visited:', visited, '| adjacent:', this.adjacent)
-        let transitions = this.selectTrans(state)
-        // console.log('transTo:', transitions)
-        // Exit condition I
-        if (transitions.length === 0) {
-            if (!this.adjacent.includes(state.getData())) {
-                this.adjacent.push(state.getData())
+                // let newTransition = new Transition(originData,)
+                newAutomata.newTransition(originData, destinyData, [tChar])
+                //
+                console.log(
+                    // 'originData', originData, '| destiny', destinyData, '| tChar', tChar
+                )
             }
-            // console.log('ev:fstate')
-            return
         }
-        // Exit condition A
-        if (visited.includes(state.getData())) {
-            // console.log('ev:rstate')
-            return
-        }
-        transitions.forEach(tran => {
-            // Recursive call A
-            if (tran.getChars().includes('_')) {
-                // console.log('ev:lambda')
-                //  If is lambda, then must travel to next state and re-evaluate.
-                visited.push(state.getData())
-                let nextState = this.automata.getState(tran.getEnd())
-                // console.log('rc1:', nextState)
-                this.adjacentByChar(nextState, tChar, hasTChar)
-            } else if (tran.getChars().includes(tChar)) {
-                // Recursive call B
-                if (hasTChar) {
-                    // console.log('ev:char, true')
-                    let nextState = this.automata.getState(tran.getEnd())
-                    // console.log('rc2:', nextState)
-                    this.adjacentByChar(nextState, tChar, false)
-                } else {
-                    // Exit condition B
-                    // console.log('ev:char, false')
-                    if (!this.adjacent.includes(state.getData())) {
-                        this.adjacent.push(state.getData())
-                    }
-                    return
-                }
-            } else {
-                // console.log('ev:¬char')
-                if (!this.adjacent.includes(state.getData())) {
-                    this.adjacent.push(state.getData())
-                }
-                return
+        // console.log(newAutomata)
+        return newAutomata
+    }
+
+    getStatesAtt(statesData) {
+        let stateAtt = {}
+        stateAtt['isInitial'] = true
+        stateAtt['isFinal'] = false
+        let states = statesData.map(state => {
+            return this.automata.getState(state)
+        })
+        states.forEach(state => {
+            if (!state.getIsInitial()) {
+                stateAtt['isInitial'] = false
+            }
+            if (state.getIsFinal()) {
+                stateAtt['isFinal'] = true
             }
         })
-        return
+        return stateAtt
     }
 
-    /**
-     * A Loop is formed whenever a chain of lambdas is formed, with that logic, if you travel in lambda transitions and you
-     * get back to origin, you're in a loop.
-     * @param {*} state 
-     * @param {*} visited 
-     */
-    isLooped(transition = null, visited = []) {
-
-        console.log(['a', 'b'] == ['a', 'b'])
-
-        realTrans.forEach(tran => {
-            // visited.push(tran.getStart().getData())
-            if (tran.getChars().includes('_')) {
-                console.log('ev:lambda')
-                if (visited.contains(tran.getEnd().getData())) {
-                    return true
-                }
-                //  If is lambda, then must travel to next state and re-evaluate.
-                visited.push(tran.getEnd().getData())
-                let nextState = this.automata.getState(tran.getEnd())
-                // console.log('rc1:', nextState)
-                this.adjacentByChar(nextState, tChar, hasTChar)
+    registerByStates(states, register) {
+        let dataState = null
+        for (let row in register) {
+            let element = register[row]
+            // console.log('element:', element, '| states:', states)
+            if (this.sameElements(element['origin'], states)) {
+                // console.log('data:', states, '| row:', row)
+                dataState = row
             }
-            // let states = this.automata.getStates()
-        })
-
-
-        // states.forEach(state => {
-        //     let realTrans = this.selectTrans(state)
-
-        // })
+        }
+        return dataState
     }
+
+    // --------------------------------------------------------------------------------------------------------
 
     setAutomata(automata) {
         this.automata = automata
@@ -386,34 +380,4 @@ export default class Determiner {
     getActualState() {
         return this.actualState
     }
-
-    uniqueElements(list) {
-        return Array.from(
-            new Set(list.map(JSON.stringify))
-        ).map(JSON.parse)
-        // return [
-        //     ...new Map(
-        //         list.map(item => [item['origin'], item])
-        //     ).values()
-        // ];
-    }
-
-    // setSetStates(setStates) {
-    //     this.setStates = setStates
-    // }
-    // getSetStates() {
-    //     return this.setStates
-    // }
-
-    // createDictionary(list) {
-    //     let dictionary = {}
-
-    //     list.forEach(item => {
-    //         if (!(item in dictionary)) {
-    //             dictionary[item] = []
-    //         }
-    //     })
-
-    //     return dictionary
-    // }
 }
